@@ -23,7 +23,7 @@ const requiresBluetooth = () => {
 };
 
 const availability = (): Observable<boolean> =>
-  Observable.create(observer => {
+  new Observable(observer => {
     const bluetooth = requiresBluetooth();
 
     const onAvailabilityChanged = e => {

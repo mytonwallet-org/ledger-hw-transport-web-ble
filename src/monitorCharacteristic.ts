@@ -3,7 +3,7 @@ import type { Characteristic } from "./types";
 import { log } from "@ledgerhq/logs";
 
 export const monitorCharacteristic = (characteristic: Characteristic): Observable<Buffer> =>
-  Observable.create(o => {
+  new Observable(o => {
     log("ble-verbose", "start monitor " + characteristic.uuid);
 
     function onCharacteristicValueChanged(event) {
@@ -14,11 +14,17 @@ export const monitorCharacteristic = (characteristic: Characteristic): Observabl
       }
     }
 
-    characteristic.startNotifications().then(() => {
-      characteristic.addEventListener("characteristicvaluechanged", onCharacteristicValueChanged);
-    });
+    characteristic.startNotifications()
+      .then(() => {
+        characteristic.addEventListener("characteristicvaluechanged", onCharacteristicValueChanged);
+      })
+      .catch(error => {
+        o.error(error);
+      });
+
     return () => {
       log("ble-verbose", "end monitor " + characteristic.uuid);
+      characteristic.removeEventListener("characteristicvaluechanged", onCharacteristicValueChanged);
       characteristic.stopNotifications();
     };
   });
