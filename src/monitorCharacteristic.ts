@@ -25,6 +25,8 @@ export const monitorCharacteristic = (characteristic: Characteristic): Observabl
     return () => {
       log("ble-verbose", "end monitor " + characteristic.uuid);
       characteristic.removeEventListener("characteristicvaluechanged", onCharacteristicValueChanged);
-      characteristic.stopNotifications();
+      if (characteristic?.service?.device?.gatt.connected) {
+        characteristic.stopNotifications();
+      }
     };
   });
